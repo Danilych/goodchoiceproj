@@ -1,6 +1,9 @@
+//import 'dart:html';
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import "package:flutter/material.dart";
-import "stuff.dart" show fibonacci, AppData;
+import 'package:image_picker/image_picker.dart';
 import "api.dart" as api;
 import 'dart:convert';
 
@@ -348,6 +351,140 @@ class _CSState extends State<CreateScreen> {
     int page = 1;
     bool drivin = false;
     String title = "Gotta go fast";
+    File _image1;
+    File _image2;
+    File _image3;
+    File _image4;
+    File _image5;
+
+    Future getImageGal1() async {
+        var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+
+        setState(() {
+            _image1 = image;
+        });
+    }
+
+    Future getImageCam1() async {
+        var image = await ImagePicker.pickImage(source: ImageSource.camera);
+
+        setState(() {
+            _image1 = image;
+        });
+    }
+
+    Future getImageGal2() async {
+        var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+
+        setState(() {
+            _image2 = image;
+        });
+    }
+
+    Future getImageCam2() async {
+        var image = await ImagePicker.pickImage(source: ImageSource.camera);
+
+        setState(() {
+            _image2 = image;
+        });
+    }
+
+    Future getImageGal3() async {
+        var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+
+        setState(() {
+            _image3 = image;
+        });
+    }
+
+    Future getImageCam3() async {
+        var image = await ImagePicker.pickImage(source: ImageSource.camera);
+
+        setState(() {
+            _image3 = image;
+        });
+    }
+
+    Future getImageGal4() async {
+        var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+
+        setState(() {
+            _image4 = image;
+        });
+    }
+
+    Future getImageCam4() async {
+        var image = await ImagePicker.pickImage(source: ImageSource.camera);
+
+        setState(() {
+            _image4 = image;
+        });
+    }
+
+    Future getImageGal5() async {
+        var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+
+        setState(() {
+            _image5 = image;
+        });
+    }
+
+    Future getImageCam5() async {
+        var image = await ImagePicker.pickImage(source: ImageSource.camera);
+
+        setState(() {
+            _image5 = image;
+        });
+    }
+
+    void _showBottomSheet(context, int i) {
+        showModalBottomSheet(
+            context: context,
+            backgroundColor: Colors.transparent,
+            builder: (BuildContext bc) {
+                return Container(
+                    height: 100,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                            topLeft: const Radius.circular(25),
+                            topRight: const Radius.circular(25),
+                        ),
+                    ),
+                    child:Column(
+                    children: <Widget>[
+                        FlatButton(
+                            child: Text("Галлерея", style: TextStyle(color: Colors.blue)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: new BorderRadius.circular(18.0),
+                            ),
+                            onPressed: () {
+                                if(i==1)getImageGal1();
+                                    else if (i==2) getImageGal2();
+                                        else if (i==3) getImageGal3();
+                                             else if (i==4) getImageGal4();
+                                                 else if (i==5) getImageGal5();
+                            },
+                            color: Colors.white,
+                        ),
+                        FlatButton(
+                            child: Text("Камера", style: TextStyle(color: Colors.blue)),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: new BorderRadius.circular(18.0),
+                            ),
+                            onPressed: () {
+                                if(i==1)getImageCam1();
+                                else if (i==2) getImageCam2();
+                                else if (i==3) getImageCam3();
+                                else if (i==4) getImageCam4();
+                                else if (i==5) getImageCam5();
+                            },
+                            color: Colors.white,
+                        )
+                    ],
+                ));
+            });
+    }
 
     @override
     Widget build(BuildContext context) {
@@ -373,24 +510,86 @@ class _CSState extends State<CreateScreen> {
                             borderRadius: BorderRadius.circular(10),
                             color: Colors.white,
                         ),
-                        child: ListView(
-                            children: <Widget> [
-                                Field.field(
-                                    placeholder: "Чево случилось",
-                                    color: Colors.indigo,
-                                ),
-                                Row(
-                                    children: <Widget>[
-                                        Icon(Icons.pool),
-                                        Icon(Icons.accessible),
-                                        Icon(Icons.accessible_forward),
-                                        Icon(Icons.accessibility_new),
-                                        Icon(Icons.accessible_forward),
-                                        Icon(Icons.accessible),
-                                    ]
-                                )
-                            ],
-                        ),
+                      child: Column(
+                          children: <Widget>[
+                          Field.field(
+                               placeholder: "Чево случилось",
+                               color: Colors.indigo,
+                            ),
+                              Container(
+                                  margin: EdgeInsets.symmetric(vertical: 20),
+                                  height:300,
+                                  child:ListView(
+                                      scrollDirection: Axis.horizontal,
+                                      children:<Widget>[
+                                          GestureDetector(
+                                              onTap: (){_showBottomSheet(context,1);},
+                                              child: Container(
+                                                  width: 300,
+                                                  height:300,
+                                                  color: _image1==null?Colors.red:Colors.red.withOpacity(0),
+                                                  child: _image1==null?Icon(Icons.add_box):Image.file(_image1),
+                                              ),
+                                          ),
+                                          GestureDetector(
+                                              onTap: (){_showBottomSheet(context,2);},
+                                              child: Container(
+                                                  width: 300,
+                                                  height:300,
+                                                  color: _image2==null?Colors.green:Colors.green.withOpacity(0),
+                                                  child: _image2==null?Icon(Icons.add_box):Image.file(_image2),
+                                              ),
+                                          ),
+                                          GestureDetector(
+                                              onTap: (){_showBottomSheet(context,3);},
+                                              child: Container(
+                                                  width: 300,
+                                                  height:300,
+                                                  color: _image3==null?Colors.blue:Colors.blue.withOpacity(0),
+                                                  child: _image3==null?Icon(Icons.add_box):Image.file(_image3),
+                                              ),
+                                          ),
+                                          GestureDetector(
+                                              onTap: (){_showBottomSheet(context,4);},
+                                              child: Container(
+                                                  width: 300,
+                                                  height:300,
+                                                  color: _image4==null?Colors.black:Colors.black.withOpacity(0),
+                                                  child: _image4==null?Icon(Icons.add_box):Image.file(_image4),
+                                              ),
+                                          ),
+                                          GestureDetector(
+                                              onTap: (){_showBottomSheet(context,5);},
+                                              child: Container(
+                                                  width: 300,
+                                                  height:300,
+                                                  color: _image5==null?Colors.yellow:Colors.yellow.withOpacity(0),
+                                                  child: _image5==null?Icon(Icons.add_box):Image.file(_image5),
+                                              ),
+                                          ),
+                                      ]
+                                  )
+                              )
+                          ],
+                      )
+                      //  child: ListView(
+                          //  children: <Widget> [
+                              //  Field.field(
+                               //     placeholder: "Чево случилось",
+                               //     color: Colors.indigo,
+                              //  ),
+                               // Row(
+                                //    children: <Widget>[
+                                //        Icon(Icons.pool),
+                                //        Icon(Icons.accessible),
+                               //         Icon(Icons.accessible_forward),
+                               //         Icon(Icons.accessibility_new),
+                               //         Icon(Icons.accessible_forward),
+                              //          Icon(Icons.accessible),
+                              //      ]
+                           //     )
+                         //   ],
+                     //   ),
                     ),
                 ),
             )
