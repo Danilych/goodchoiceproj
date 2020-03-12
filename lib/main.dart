@@ -1,95 +1,139 @@
-//import 'package:camera/new/camera.dart';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:flutter/widgets.dart';
+import 'package:path_provider/path_provider.dart';
 
-void main() => runApp(MyApp());
+List<CameraDescription> cameras;
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(title: 'Camero demo'),
-    );
+class SizeConfig {
+  static MediaQueryData _mediaQueryData;
+  static double screenWidth;
+  static double screenHeight;
+  static double blockSizeHorizontal;
+  static double blockSizeVertical;
+
+  void init(BuildContext context) {
+    _mediaQueryData = MediaQuery.of(context);
+    screenWidth = _mediaQueryData.size.width;
+    screenHeight = _mediaQueryData.size.height;
+    blockSizeHorizontal = screenWidth / 100;
+    blockSizeVertical = screenHeight / 100;
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
+void main() => runApp(MaterialApp(home:CameraWidget()));
 
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
+class CameraWidget extends StatefulWidget {
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  CameraState createState() => CameraState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  List<CameraDescription> _cameras;
-  CameraDescription _activeCamera;
-  int _counter = 0;
-  CameraController _controller;
+class CameraState extends State<CameraWidget> {
+  List<CameraDescription> cameras;
+  CameraController controller;
+  String _filePath;
+  bool isReady = false;
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    _getCameras();
+    setupCameras();
   }
-  Future<void> _getCameras() async{
-    final cameras = await availableCameras();
+
+  Future<void> setupCameras() async {
+    try {
+      cameras = await availableCameras();
+      controller = new CameraController(cameras[0], ResolutionPreset.ultraHigh);
+      await controller.initialize();
+    } on CameraException catch (_) {
+      setState(() {
+        isReady = false;
+      });
+    }
     setState(() {
-      _cameras = cameras;
-      _activeCamera = cameras[1];
+      isReady = true;
     });
   }
 
-  void _setCameraController(CameraDescription cameraDescription) async {
-    _controller = CameraController(cameraDescription, ResolutionPreset.high);
+  Future<void> takePhoto(BuildContext context) async {
 
-    await _controller.initialize();
+    if (!controller.value.isInitialized) {
+      return null;
+    }
+    final Directory extDir = await getExternalStorageDirectory();
+    final String dirPath = '${extDir.path}/Pictures/flutter_camera';
+    await Directory(dirPath).create(recursive: true);
+    final String filePath = '$dirPath/${DateTime.now()}.jpg';
 
-    if (mounted){
-      setState(() {});
+    if (controller.value.isTakingPicture) {
+      return null;
+    }
+
+    try {
+      await controller.takePicture(filePath);
+      setState(() {
+        _filePath = filePath;
+        _showBottomSheet(context);
+      });
+    } on CameraException catch (e) {
+      print(e);
     }
   }
 
-Widget _cameraView(){
-    _setCameraController(_activeCamera);
-  return new Container(
-    child: new Row(
-      children:[
-        new Expanded(child: new Column(
-          children:<Widget>[
-            new AspectRatio(
-              aspectRatio: _controller.value.aspectRatio,
-              child: new CameraPreview(_controller),
-            )
-          ]
-        ))
-      ]
-    )
-  );
-}
-
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold(
-      body: new Container(child:_cameraView()),
-    );
+  void _showBottomSheet(context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext bc) {
+          return Center(
+              child: LimitedBox(
+                child:
+                Image.file(File(_filePath)),
+                maxHeight: 300,
+              ));
+        });
   }
-}
+
+    Widget build(BuildContext context) {
+      SizeConfig().init(context);
+      if (!isReady && !controller.value.isInitialized) {
+        return Container();
+      }
+      try {
+        return Column(
+            children: <Widget>[
+              Expanded(
+                flex: 2,
+                child: AspectRatio(
+                    aspectRatio: controller.value.aspectRatio,
+                    child: CameraPreview(controller)),
+              ),
+              Container(
+                  child: FloatingActionButton(
+                      backgroundColor: Colors.red,
+                      onPressed: (){takePhoto(context);}
+                  ),
+                  padding: EdgeInsets.fromLTRB(
+                      0, SizeConfig.blockSizeVertical * 19, 0, 0),
+                  color: Colors.black
+              )
+            ]
+        );
+      } catch (e) {
+        return Column(
+            children: <Widget>[
+              Expanded(
+                  flex: 2,
+                  child: Container(
+                      color: Colors.black)
+              ),
+              Container(
+                  padding: EdgeInsets.fromLTRB (0, SizeConfig.blockSizeVertical * 20, 0, 0),
+                  color: Colors.black,
+              )
+            ]
+        );
+      }
+    }
+  }
+
