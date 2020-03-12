@@ -1,47 +1,8 @@
+import 'package:flutter/cupertino.dart';
 import "package:flutter/material.dart";
 import "stuff.dart" show fibonacci, AppData;
 import "api.dart" as api;
 import 'dart:convert';
-
-class ColorScheme {
-    MaterialColor main;
-    Color accent, back, hover, field, text, antiAccent;
-    String name;
-
-    ColorScheme(MaterialColor x, String name) {
-        setMain(x);
-        setTheme(name);
-    }
-
-    setTheme(String name) {
-        if (name == null) name = "Light";
-        if (name.toLowerCase() == "light") {
-            this.name = "Light";
-            accent = main.shade500;
-            hover = main.shade100;
-            field = main.shade50;
-            back = Colors.white;
-            text = Colors.black;
-            antiAccent = Colors.white;
-        } else {
-            this.name = "Dark";
-            accent = main.shade300;
-            hover = Color(0XFF121212);
-            field = Color(0XFF181818);
-            back = Color(0XFF212121);
-            text = Colors.white;
-            antiAccent = Colors.white;
-        }
-    }
-    setMain(MaterialColor x) {
-        main = x;
-        setTheme(name);
-    }
-}
-
-api.User user;
-AppData appData = AppData();
-ColorScheme currentTheme = ColorScheme(Colors.deepPurple, "Light");
 
 
 class Main extends StatefulWidget {
@@ -147,10 +108,13 @@ class _AuthState extends State<AuthScreen> {
                                         borderRadius: new BorderRadius.circular(18.0),
                                     ),
                                     onPressed: () {
-                                        setState(() {
-                                            code = api.sendCode(controllers[0].text);
-                                            codeSent = true;
-                                            widget.changer();
+                                        api.sendCode(controllers[0].text).then((dynamic value) {
+                                            setState(() {
+                                                print(value.body);
+                                                code = value.body;
+                                                codeSent = true;
+                                                widget.changer();
+                                            });
                                         });
                                     },
                                     color: Colors.white,
@@ -173,7 +137,7 @@ class _AuthState extends State<AuthScreen> {
                                     ),
                                 ),
                                 FlatButton(
-                                    child: Text("Отправить код", style: TextStyle(color: Colors.blue)),
+                                    child: Text("Подтвердить $code", style: TextStyle(color: Colors.blue)),
                                     shape: RoundedRectangleBorder(
                                         borderRadius: new BorderRadius.circular(18.0),
                                     ),
@@ -290,7 +254,7 @@ class _HomeState extends State<Homepage> {
                                             color: color,
                                             size: 50
                                         ),
-                                        title: Text(drivin ? "РАЗОЙДИСЬ Я ЕДУ" : 'Обращение' ),
+                                        title: Text(drivin ? 'ПОГНАЛИ НА ГОНКУ' : 'НУ ЧЕ НАРОД'),
                                         subtitle: Text('Текст обращения. Текст текст'),
                                     ),
                                 ],
@@ -303,6 +267,7 @@ class _HomeState extends State<Homepage> {
         return req;
     }
 }
+
 
 AppBar appBar(widget, t) {
     return AppBar(
@@ -323,6 +288,7 @@ AppBar appBar(widget, t) {
     );
 }
 
+
 class Field {
     static Widget field({Function onChanged, String placeholder , String defaultText = "", TextEditingController controller, Color color = Colors.white}) {
         if (controller == null) {
@@ -336,6 +302,7 @@ class Field {
                 controller: controller,
                 cursorColor: color,
                 style: TextStyle(color: color),
+                maxLines: null,
                 decoration: new InputDecoration(
                     filled: true,
                     fillColor: Colors.transparent,
@@ -355,6 +322,7 @@ class Field {
     }
 }
 
+
 LinearGradient appgrad() {
     return LinearGradient(
         begin: Alignment.topCenter,
@@ -364,8 +332,9 @@ LinearGradient appgrad() {
             Colors.blue[400],
             Colors.indigo[400],
         ],
-    )
+    );
 }
+
 
 class CreateScreen extends StatefulWidget {
     CreateScreen({Key key}) : super(key: key);
@@ -388,17 +357,40 @@ class _CSState extends State<CreateScreen> {
             ),
             child: Scaffold(
                 backgroundColor: Colors.transparent,
-                appBar: AppBar(
-                    title: Text('First Route'),
-                    backgroundColor: Colors.black.withAlpha(70),
+                floatingActionButton: FloatingActionButton(
+                    backgroundColor: Colors.indigo,
+                    onPressed: () {},
+                    child: Icon(Icons.accessible_forward)
                 ),
-                body: Center(
-                    child: RaisedButton(
-                        child: Text('Open route'),
-                        onPressed: () {
-                            print("ЛОПАТА");
-                            // Navigate to second route when tapped.
-                        },
+                appBar: AppBar(
+                    title: Text('Заполнить обращение'),
+                    backgroundColor: Colors.black.withAlpha(60),
+                ),
+                body: Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.white,
+                        ),
+                        child: ListView(
+                            children: <Widget> [
+                                Field.field(
+                                    placeholder: "Чево случилось",
+                                    color: Colors.indigo,
+                                ),
+                                Row(
+                                    children: <Widget>[
+                                        Icon(Icons.pool),
+                                        Icon(Icons.accessible),
+                                        Icon(Icons.accessible_forward),
+                                        Icon(Icons.accessibility_new),
+                                        Icon(Icons.accessible_forward),
+                                        Icon(Icons.accessible),
+                                    ]
+                                )
+                            ],
+                        ),
                     ),
                 ),
             )
