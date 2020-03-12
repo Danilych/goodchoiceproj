@@ -61,7 +61,7 @@ class CameraState extends State<CameraWidget> {
     if (!controller.value.isInitialized) {
       return null;
     }
-    final Directory extDir = await getExternalStorageDirectory();
+    final Directory extDir = await getTemporaryDirectory();
     final String dirPath = '${extDir.path}/Pictures/flutter_camera';
     await Directory(dirPath).create(recursive: true);
     final String filePath = '$dirPath/${DateTime.now()}.jpg';
