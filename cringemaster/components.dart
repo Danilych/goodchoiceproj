@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import "package:flutter/material.dart";
 import 'package:image_picker/image_picker.dart';
+import 'package:geolocator/geolocator.dart';
 import "api.dart" as api;
 import 'dart:convert';
 
@@ -209,13 +210,6 @@ class _HomeState extends State<Homepage> {
             ),
             bottomNavigationBar: BottomAppBar(
                 shape: CircularNotchedRectangle(),
-                child: Row(
-                    children: <Widget>[
-                        IconButton(icon: Icon(Icons.palette), onPressed: () {},),
-                        IconButton(icon: Icon(Icons.settings), onPressed: () {},),
-                    ],
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                ),
                 notchMargin: 6.0,
             ),
             floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -251,7 +245,7 @@ class _HomeState extends State<Homepage> {
                             child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: <Widget>[
-                                    ListTile(
+                                    ListTile.b(
                                         leading: Icon(
                                             drivin ? Icons.accessible_forward : Icons.accessible,
                                             color: color,
@@ -349,141 +343,36 @@ class _CSState extends State<CreateScreen> {
     bool isChanged = false;
     int value = 1;
     int page = 1;
-    bool drivin = false;
+    int imn = 0;
     String title = "Gotta go fast";
-    File _image1;
-    File _image2;
-    File _image3;
-    File _image4;
-    File _image5;
+    List<File> _images = [];
+    Position position;
 
-    Future getImageGal1() async {
-        var image = await ImagePicker.pickImage(source: ImageSource.gallery);
-
-        setState(() {
-            _image1 = image;
-        });
-    }
-
-    Future getImageCam1() async {
+    Future getImageCam() async {
+        if(imn<5){
         var image = await ImagePicker.pickImage(source: ImageSource.camera);
 
         setState(() {
-            _image1 = image;
+            if(image != null)_images.add(image);
+            imn++;
         });
     }
-
-    Future getImageGal2() async {
-        var image = await ImagePicker.pickImage(source: ImageSource.gallery);
-
-        setState(() {
-            _image2 = image;
-        });
+        else return null;
     }
 
-    Future getImageCam2() async {
-        var image = await ImagePicker.pickImage(source: ImageSource.camera);
+    Future RemoveImageCam() async {
+        if(imn>0){
 
-        setState(() {
-            _image2 = image;
-        });
-    }
-
-    Future getImageGal3() async {
-        var image = await ImagePicker.pickImage(source: ImageSource.gallery);
-
-        setState(() {
-            _image3 = image;
-        });
-    }
-
-    Future getImageCam3() async {
-        var image = await ImagePicker.pickImage(source: ImageSource.camera);
-
-        setState(() {
-            _image3 = image;
-        });
-    }
-
-    Future getImageGal4() async {
-        var image = await ImagePicker.pickImage(source: ImageSource.gallery);
-
-        setState(() {
-            _image4 = image;
-        });
-    }
-
-    Future getImageCam4() async {
-        var image = await ImagePicker.pickImage(source: ImageSource.camera);
-
-        setState(() {
-            _image4 = image;
-        });
-    }
-
-    Future getImageGal5() async {
-        var image = await ImagePicker.pickImage(source: ImageSource.gallery);
-
-        setState(() {
-            _image5 = image;
-        });
-    }
-
-    Future getImageCam5() async {
-        var image = await ImagePicker.pickImage(source: ImageSource.camera);
-
-        setState(() {
-            _image5 = image;
-        });
-    }
-
-    void _showBottomSheet(context, int i) {
-        showModalBottomSheet(
-            context: context,
-            backgroundColor: Colors.transparent,
-            builder: (BuildContext bc) {
-                return Container(
-                    height: 100,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                            topLeft: const Radius.circular(25),
-                            topRight: const Radius.circular(25),
-                        ),
-                    ),
-                    child:Column(
-                    children: <Widget>[
-                        FlatButton(
-                            child: Text("Галлерея", style: TextStyle(color: Colors.blue)),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: new BorderRadius.circular(18.0),
-                            ),
-                            onPressed: () {
-                                if(i==1)getImageGal1();
-                                    else if (i==2) getImageGal2();
-                                        else if (i==3) getImageGal3();
-                                             else if (i==4) getImageGal4();
-                                                 else if (i==5) getImageGal5();
-                            },
-                            color: Colors.white,
-                        ),
-                        FlatButton(
-                            child: Text("Камера", style: TextStyle(color: Colors.blue)),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: new BorderRadius.circular(18.0),
-                            ),
-                            onPressed: () {
-                                if(i==1)getImageCam1();
-                                else if (i==2) getImageCam2();
-                                else if (i==3) getImageCam3();
-                                else if (i==4) getImageCam4();
-                                else if (i==5) getImageCam5();
-                            },
-                            color: Colors.white,
-                        )
-                    ],
-                ));
+            setState(() {
+                _images.removeLast();
+                imn--;
             });
+        }
+        else return null;
+    }
+
+    Future GetLocation() async {
+        position = await Geolocator().getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     }
 
     @override
@@ -494,11 +383,11 @@ class _CSState extends State<CreateScreen> {
             ),
             child: Scaffold(
                 backgroundColor: Colors.transparent,
-                floatingActionButton: FloatingActionButton(
-                    backgroundColor: Colors.indigo,
-                    onPressed: () {},
-                    child: Icon(Icons.accessible_forward)
-                ),
+               // floatingActionButton: FloatingActionButton(
+                 //   backgroundColor: Colors.indigo,
+                 //   onPressed: () {},
+                //    child: Icon(Icons.email)
+            //    ),
                 appBar: AppBar(
                     title: Text('Заполнить обращение'),
                     backgroundColor: Colors.black.withAlpha(60),
@@ -513,86 +402,92 @@ class _CSState extends State<CreateScreen> {
                       child: Column(
                           children: <Widget>[
                           Field.field(
-                               placeholder: "Чево случилось",
+                               placeholder: "Что случилось",
                                color: Colors.indigo,
                             ),
+                              Field.field(
+                                  placeholder: "Номер машины",
+                                  color: Colors.indigo,
+                              ),
                               Container(
                                   margin: EdgeInsets.symmetric(vertical: 20),
-                                  height:300,
-                                  child:ListView(
+                                  height:250,
+                                  child:new ListView.builder(
                                       scrollDirection: Axis.horizontal,
-                                      children:<Widget>[
-                                          GestureDetector(
-                                              onTap: (){_showBottomSheet(context,1);},
+
+                                     itemCount: _images.length,
+                                     itemBuilder: (BuildContext ctxt, int Index) {
+                                    return new GestureDetector(
+                                               onTap: (){getImageCam();},
+                                                child: Container(
+                                                    width: 250,
+                                                    height:250,
+                                                    color: Colors.lightBlue.withOpacity(0.1),
+                                                    child: _images[Index]==null?Icon(Icons.add_a_photo):Image.file(_images[Index])
+                                             ),
+                                          );
+                                          },
+
+                                     ),
+                                          ),
+                              Row (
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: <Widget>[
+                                      GestureDetector(
+                                          onTap: () {GetLocation();},
+                                          child: ClipOval(
                                               child: Container(
-                                                  width: 300,
-                                                  height:300,
-                                                  color: _image1==null?Colors.red:Colors.red.withOpacity(0),
-                                                  child: _image1==null?Icon(Icons.add_box):Image.file(_image1),
+                                                  color: Colors.blue,
+                                                  height: 60.0, // height of the button
+                                                  width: 60.0, // width of the button
+                                                  child: Center(child: Icon(Icons.add_location,
+                                                  color: Colors.white)),
                                               ),
                                           ),
-                                          GestureDetector(
-                                              onTap: (){_showBottomSheet(context,2);},
+                                      ),
+                                      GestureDetector(
+                                          onTap: () {RemoveImageCam();},
+                                          child: ClipOval(
                                               child: Container(
-                                                  width: 300,
-                                                  height:300,
-                                                  color: _image2==null?Colors.green:Colors.green.withOpacity(0),
-                                                  child: _image2==null?Icon(Icons.add_box):Image.file(_image2),
+                                                  color: Colors.blue,
+                                                  height: 60.0, // height of the button
+                                                  width: 60.0, // width of the button
+                                                  child: Center(child: Icon(Icons.remove_circle,
+                                                      color: Colors.white)),
                                               ),
                                           ),
-                                          GestureDetector(
-                                              onTap: (){_showBottomSheet(context,3);},
+                                      ),
+                                      GestureDetector(
+                                          onTap: () {getImageCam();},
+                                          child: ClipOval(
                                               child: Container(
-                                                  width: 300,
-                                                  height:300,
-                                                  color: _image3==null?Colors.blue:Colors.blue.withOpacity(0),
-                                                  child: _image3==null?Icon(Icons.add_box):Image.file(_image3),
+                                                  color: Colors.blue,
+                                                  height: 60.0, // height of the button
+                                                  width: 60.0, // width of the button
+                                                  child: Center(child: Icon(Icons.add_a_photo,
+                                                      color: Colors.white)),
                                               ),
                                           ),
-                                          GestureDetector(
-                                              onTap: (){_showBottomSheet(context,4);},
+                                      ),
+                                      GestureDetector(
+                                          onTap: () {},
+                                          child: ClipOval(
                                               child: Container(
-                                                  width: 300,
-                                                  height:300,
-                                                  color: _image4==null?Colors.black:Colors.black.withOpacity(0),
-                                                  child: _image4==null?Icon(Icons.add_box):Image.file(_image4),
+                                                  color: Colors.blue,
+                                                  height: 60.0, // height of the button
+                                                  width: 60.0, // width of the button
+                                                  child: Center(child: Icon(Icons.email,
+                                                      color: Colors.white)),
                                               ),
                                           ),
-                                          GestureDetector(
-                                              onTap: (){_showBottomSheet(context,5);},
-                                              child: Container(
-                                                  width: 300,
-                                                  height:300,
-                                                  color: _image5==null?Colors.yellow:Colors.yellow.withOpacity(0),
-                                                  child: _image5==null?Icon(Icons.add_box):Image.file(_image5),
-                                              ),
-                                          ),
+                                      )
+                                  ],
+                              )
                                       ]
                                   )
                               )
-                          ],
                       )
-                      //  child: ListView(
-                          //  children: <Widget> [
-                              //  Field.field(
-                               //     placeholder: "Чево случилось",
-                               //     color: Colors.indigo,
-                              //  ),
-                               // Row(
-                                //    children: <Widget>[
-                                //        Icon(Icons.pool),
-                                //        Icon(Icons.accessible),
-                               //         Icon(Icons.accessible_forward),
-                               //         Icon(Icons.accessibility_new),
-                               //         Icon(Icons.accessible_forward),
-                              //          Icon(Icons.accessible),
-                              //      ]
-                           //     )
-                         //   ],
-                     //   ),
                     ),
-                ),
-            )
-        );
+                );
     }
 }
