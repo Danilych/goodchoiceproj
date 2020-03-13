@@ -180,7 +180,7 @@ class _HomeState extends State<Homepage> {
     int value = 1;
     int page = 1;
     bool drivin = false;
-    String title = "Gotta go fast";
+    String title = "История обращений";
 
     @override
     Widget build(BuildContext context) {
@@ -228,39 +228,42 @@ class _HomeState extends State<Homepage> {
     List<Card> requests() {
         List<Card> req = [];
         Color color = [Colors.indigo, Colors.red][drivin? 1 : 0];
-        for (int i = 0; i < 10; i++) {
-            req.add(
-                Card(
-                    child: InkWell(
-                        splashColor: color.withAlpha(30),
-                        highlightColor: color.withAlpha(10),
-                        onTap: () {
-                            setState(() {
-                                drivin = !drivin;
-                                widget.changer();
-                            });
-                        },
-                        child: Padding(
-                            padding: EdgeInsets.fromLTRB(0, 10, 2, 0),
-                            child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: <Widget>[
-                                    ListTile.b(
-                                        leading: Icon(
-                                            drivin ? Icons.accessible_forward : Icons.accessible,
-                                            color: color,
-                                            size: 50
-                                        ),
-                                        title: Text(drivin ? 'ПОГНАЛИ НА ГОНКУ' : 'НУ ЧЕ НАРОД'),
-                                        subtitle: Text('Текст обращения. Текст текст'),
+        new ListView.builder(
+            scrollDirection: Axis.vertical,
+
+            itemCount: req.length,
+            itemBuilder: (BuildContext ctxt, int Index) {
+                return new Card(
+                       child: InkWell(
+                          splashColor: color.withAlpha(30),
+                          highlightColor: color.withAlpha(10),
+                         onTap: () {
+                             setState(() {
+                                 drivin = !drivin;
+                                  widget.changer();
+                             });
+                            },
+                          child: Padding(
+                                 padding: EdgeInsets.fromLTRB(0, 10, 2, 0),
+                                 child: Column(
+                                       mainAxisSize: MainAxisSize.min,
+                                    children: <Widget>[
+                                           ListTile(
+                                               leading: Icon(
+                                                   drivin ? Icons.accessible_forward : Icons.accessible,
+                                                    color: color,
+                                                    size: 50
+                                                ),
+                                               title: Text(drivin ? 'ПОГНАЛИ НА ГОНКУ' : 'НУ ЧЕ НАРОД'),
+                                               subtitle: Text('Текст обращения. Текст текст'),
+                                          ),
+                                        ],
                                     ),
-                                ],
-                            ),
-                        )
-                    ),
-                ),
-            );
-        }
+                                 )
+                             ),
+                        );
+            },
+        );
         return req;
     }
 }
@@ -344,7 +347,7 @@ class _CSState extends State<CreateScreen> {
     int value = 1;
     int page = 1;
     int imn = 0;
-    String title = "Gotta go fast";
+    String title = "История обращений";
     List<File> _images = [];
     Position position;
 
@@ -427,7 +430,6 @@ class _CSState extends State<CreateScreen> {
                                              ),
                                           );
                                           },
-
                                      ),
                                           ),
                               Row (
